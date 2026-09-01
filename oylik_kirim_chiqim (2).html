@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oylik Kirim-Chiqim Boshqaruvchisi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --income: #10b981;
+            --expense: #ef4444;
+            --warning: #f59e0b;
+            --bg-light: #f8fafc;
+            --bg-dark: #1e293b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #0ea5e9 0%, #667eea 100%);
+            --gradient-3: linear-gradient(135deg, #ec4899 0%, #667eea 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #f0e7fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+        
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .sidebar-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .user-profile {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 12px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: white;
+        }
+        
+        .user-name {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: #1e293b;
+            word-break: break-word;
+        }
+        
+        .user-email {
+            font-size: 0.85em;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        
+        .sidebar-title {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.95em;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gradient-1);
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .sidebar-button {
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border: 2px solid transparent;
+            background: #f8fafc;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+        
+        .sidebar-button:hover {
+            background: var(--gradient-1);
+            color: white;
+            border-color: var(--gradient-1);
+            transform: translateX(4px);
+        }
+        
+        .sidebar-button.danger {
+            color: #ef4444;
+        }
+        
+        .sidebar-button.danger:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+        }
+        
+        /* Login Screen */
+        .login-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #f0e7fe 100%);
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-screen.active {
+            display: flex;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2);
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        .login-card h2 {
+            font-size: 2em;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .login-card p {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1em;
+            font-family: inherit;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: all 0.3s ease;
+        }
+        
+        .login-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 14px 24px;
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Settings Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        .modal-content h3 {
+            font-size: 1.6em;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--gradient-1);
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1em;
+            font-family: inherit;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+        
+        .modal-btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+        
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+        }
+        
+        .modal-btn-secondary {
+            background: #f8fafc;
+            color: #475569;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .modal-btn-secondary:hover {
+            background: #e2e8f0;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: static;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin-bottom: 30px;
+            }
+            
+            .sidebar-card {
+                margin-bottom: 0;
+            }
+            
+            .login-card {
+                padding: 30px;
+            }
+            
+            .modal-content {
+                padding: 30px;
+            }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.7s ease;
+        }
+        
+        .header h1 {
+            font-size: 3.2em;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        
+        .header p {
+            color: #64748b;
+            font-size: 1.1em;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+            animation: slideUp 0.7s ease;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+        
+        .stat-icon {
+            font-size: 2.8em;
+            margin-bottom: 16px;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 0.4px;
+        }
+        
+        .stat-value {
+            font-size: 2.4em;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            word-break: break-word;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 28px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+        
+        .card h2 {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--gradient-1);
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            border-image: var(--gradient-1) 1;
+        }
+        
+        .card h3 {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 16px;
+            margin-top: 24px;
+        }
+        
+        .card h4 {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 12px;
+        }
+        
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.95em;
+            letter-spacing: 0.3px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1em;
+            font-family: inherit;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        input::placeholder {
+            color: #94a3b8;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .quick-buttons button {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0e7fe 100%);
+            color: #667eea;
+            border: 2px solid #667eea;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-buttons button:hover {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+        }
+        
+        .month-picker {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            margin-bottom: 40px;
+        }
+        
+        input[type="month"] {
+            background: white;
+            border: 2px solid #667eea;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1e293b;
+            text-align: center;
+        }
+        
+        input[type="month"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.3);
+            cursor: pointer;
+        }
+        
+        select option {
+            background: white;
+            color: #1e293b;
+        }
+        
+        #customExpenseInput {
+            animation: slideDown 0.3s ease;
+        }
+        
+        .transactions-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            background: linear-gradient(135deg, #f8fafc 0%, #f0e7fe 100%);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .transaction-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.1);
+        }
+        
+        .transaction-item .date {
+            color: #64748b;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .transaction-item .amount {
+            font-weight: 800;
+            font-size: 1.1em;
+            color: #667eea;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+        
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+        
+        .empty-state-text {
+            font-size: 1em;
+            font-weight: 500;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+                overflow: hidden;
+            }
+            to {
+                opacity: 1;
+                max-height: 100px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card, .stat-card {
+                padding: 20px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+        
+        @media print {
+            * {
+                background: white !important;
+                color: black !important;
+            }
+            
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            
+            .container {
+                max-width: 100% !important;
+            }
+            
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 20px;
+            }
+            
+            .header h1 {
+                background: none !important;
+                color: #000 !important;
+                font-size: 2em;
+                margin-bottom: 10px;
+            }
+            
+            .header p {
+                color: #333 !important;
+                font-size: 0.95em;
+            }
+            
+            .month-picker {
+                display: none !important;
+            }
+            
+            button, input[type="button"], input[type="file"] {
+                display: none !important;
+            }
+            
+            .stats-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 15px !important;
+                margin-bottom: 30px !important;
+                page-break-inside: avoid !important;
+            }
+            
+            .stat-card {
+                background: #f5f5f5 !important;
+                border: 1px solid #999 !important;
+                padding: 15px !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+            
+            .stat-card::before {
+                display: none !important;
+            }
+            
+            .stat-icon {
+                font-size: 2em;
+                margin-bottom: 8px;
+            }
+            
+            .stat-label {
+                color: #333 !important;
+                font-weight: bold;
+                font-size: 0.9em;
+                margin-bottom: 5px;
+            }
+            
+            .stat-value {
+                color: #000 !important;
+                font-size: 1.4em;
+                font-weight: bold;
+                background: none !important;
+                -webkit-text-fill-color: black !important;
+            }
+            
+            .content-grid {
+                display: block !important;
+            }
+            
+            .card {
+                background: white !important;
+                border: 1px solid #999 !important;
+                page-break-inside: avoid !important;
+                margin-bottom: 30px !important;
+                padding: 15px !important;
+                box-shadow: none !important;
+            }
+            
+            .card h2 {
+                color: #000 !important;
+                font-size: 1.2em;
+                margin-bottom: 15px;
+                border-bottom: 1px solid #999;
+                padding-bottom: 10px;
+                background: none !important;
+                -webkit-text-fill-color: black !important;
+            }
+            
+            .card h3 {
+                color: #000 !important;
+                font-size: 1em;
+                margin-bottom: 10px;
+            }
+            
+            .card h4 {
+                color: #333 !important;
+                font-size: 0.95em;
+            }
+            
+            .input-group {
+                display: none !important;
+            }
+            
+            .btn-group {
+                display: none !important;
+            }
+            
+            .quick-buttons {
+                display: none !important;
+            }
+            
+            .transactions-list {
+                background: white !important;
+            }
+            
+            .transaction-item {
+                background: #f9f9f9 !important;
+                border: 1px solid #ddd !important;
+                padding: 10px !important;
+                margin-bottom: 8px !important;
+                page-break-inside: avoid !important;
+                border-left: none !important;
+            }
+            
+            .transaction-item .amount {
+                color: #000 !important;
+                font-weight: bold;
+            }
+            
+            .transaction-item .date {
+                color: #666 !important;
+                font-size: 0.9em;
+            }
+            
+            .empty-state {
+                display: none !important;
+            }
+            
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                margin: 15px 0 !important;
+            }
+            
+            table th {
+                background: #e0e0e0 !important;
+                color: #000 !important;
+                border: 1px solid #999 !important;
+                padding: 10px !important;
+                text-align: left !important;
+                font-weight: bold !important;
+            }
+            
+            table td {
+                border: 1px solid #ddd !important;
+                padding: 8px !important;
+                color: #000 !important;
+            }
+            
+            table tr:nth-child(even) {
+                background: #f9f9f9 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Account Modal (Inside App) -->
+    <div id="accountModal" class="modal">
+        <div class="modal-content">
+            <h3 id="accountModalTitle">📝 Akkaunt Yaratish</h3>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600;">Username</label>
+                <input type="text" id="regUsername" class="modal-input" placeholder="Username kiritish (3+ belgidan iborat)">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600;">Parol</label>
+                <div style="position: relative;">
+                    <input type="password" id="regPassword" class="modal-input" placeholder="Parol kiritish (4+ belgidan iborat)" style="padding-right: 40px;">
+                    <button onclick="toggleRegPasswordVisibility()" style="position: absolute; right: 12px; top: 12px; background: none; border: none; cursor: pointer; font-size: 1.2em; color: #667eea;">👁️</button>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="createAccount()">Akkaunt Yaratish</button>
+                <button class="modal-btn modal-btn-secondary" id="accountModalCancel" onclick="closeAccountModal()" style="display: none;">Bekor Qilish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal (Existing Account) -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h3>🔓 Mavjud Akkauntga Kirish</h3>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600;">Username</label>
+                <input type="text" id="loginUsername" class="modal-input" placeholder="Username kiritish">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600;">Parol</label>
+                <div style="position: relative;">
+                    <input type="password" id="loginPassword" class="modal-input" placeholder="Parol kiritish" style="padding-right: 40px;">
+                    <button onclick="toggleLoginPasswordVisibility()" style="position: absolute; right: 12px; top: 12px; background: none; border: none; cursor: pointer; font-size: 1.2em; color: #667eea;">👁️</button>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="loginAccount()">Kirish</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closeLoginModal()">Bekor Qilish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h3>Profil Sozlamalari</h3>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600;">Nomingiz</label>
+                <input type="text" id="settingsUsername" class="modal-input" placeholder="Nomingizni kiriting">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600;">Email</label>
+                <input type="email" id="settingsEmail" class="modal-input" placeholder="Email kiritish">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600;">Yangi Parol (ihtiyoriy)</label>
+                <input type="password" id="settingsNewPassword" class="modal-input" placeholder="Yangi parol (bo'sh qoldiring agar o'zgartimasangiz)">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="saveSettings()">Saqlash</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closeSettingsModal()">Bekor Qilish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>Parolni O'zgartiirsh</h3>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600;">Eski Parol</label>
+                <input type="password" id="oldPassword" class="modal-input" placeholder="Eski parolni kiriting" autocomplete="current-password">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600;">Yangi Parol</label>
+                <input type="password" id="newPassword" class="modal-input" placeholder="Yangi parolni kiriting">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600;">Parolni Tasdiqlash</label>
+                <input type="password" id="confirmPassword" class="modal-input" placeholder="Parolni qayta kiriting">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="changePassword()">O'zgartiirsh</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closePasswordModal()">Bekor Qilish</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-card user-profile" id="userProfileCard">
+                <div class="user-avatar" id="userAvatar">👤</div>
+                <div class="user-name" id="userName">Kirish Kerak</div>
+                <div class="user-email" id="userEmail">Akkaunt yaratish uchun</div>
+            </div>
+            
+            <div class="sidebar-card" id="authButtonsCard">
+                <div class="sidebar-title">🔐 Akkaunt</div>
+                <button class="sidebar-button" onclick="openAccountModal()">➕ Yangi Akkaunt</button>
+                <button class="sidebar-button" onclick="openLoginModal()">🔓 Mavjud Akkauntga Kirish</button>
+            </div>
+            
+            <div class="sidebar-card" id="settingsCard" style="display: none;">
+                <div class="sidebar-title">⚙️ Sozlamalar</div>
+                <button class="sidebar-button" onclick="openSettingsModal()">📝 Profilni Tahrir</button>
+                <button class="sidebar-button" onclick="openPasswordModal()">🔐 Parolni O'zgartiirsh</button>
+            </div>
+            
+            <div class="sidebar-card" id="infoCard" style="display: none;">
+                <div class="sidebar-title">ℹ️ Ma'lumot</div>
+                <button class="sidebar-button" onclick="showInfo()">📊 Statistika</button>
+                <button class="sidebar-button" onclick="showHelp()">❓ Yordam</button>
+            </div>
+            
+            <div class="sidebar-card" id="logoutCard" style="display: none;">
+                <button class="sidebar-button danger" onclick="logout()">🚪 Chiqish</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="container">
+        <div class="header">
+            <h1>💰 Kirim-Chiqim Boshqaruvchisi</h1>
+            <p>Oyliklarim va chiqimlariningizning zamonaviy hisob-kitobi</p>
+        </div>
+        
+        <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
+            <button onclick="exportData()" style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9em; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                📥 Ma'lumotlarni Yuklab Olish (Export)
+            </button>
+            <button onclick="triggerImport()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9em; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                📤 Ma'lumotlarni Yuklash (Import)
+            </button>
+            <button onclick="printReport()" style="background: linear-gradient(135deg, #f59e0b, #f97316); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9em; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                🖨️ Chop Etish (Print)
+            </button>
+            <button onclick="resetAllData()" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9em; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                🔄 Barchani O'chirish (Reset)
+            </button>
+            <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData()">
+        </div>
+        
+        <div class="month-picker">
+            <input type="month" id="monthSelector" value="">
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card income">
+                <div class="stat-icon">📥</div>
+                <div class="stat-label">Ish Joylardan Kirim</div>
+                <div class="stat-value" id="totalIncome">0 UZS</div>
+            </div>
+            <div class="stat-card expense">
+                <div class="stat-icon">📤</div>
+                <div class="stat-label">Umumiy Chiqim</div>
+                <div class="stat-value" id="totalExpense">0 UZS</div>
+            </div>
+            <div class="stat-card balance">
+                <div class="stat-icon">💵</div>
+                <div class="stat-label">Saldo (Zahira + Kirim - Chiqim)</div>
+                <div class="stat-value" id="totalBalance">0 UZS</div>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <!-- Kirim Qo'shish -->
+            <div class="card">
+                <h2>📥 Kirim Qo'shish</h2>
+                
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+                    <h3 style="margin-bottom: 20px; color: #34d399; font-size: 1.1em;">💰 Zahira/Qo'lda Bor Pul</h3>
+                    <p style="color: #cbd5e1; font-size: 0.9em; margin-bottom: 20px;">Oldindan mavjud bo'lgan pul. Umumiy saldoga qo'shiladi. Qayta kiritib balansni yangilashingiz mumkin.</p>
+                    
+                    <!-- Naqad Zahira -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h4 style="color: #fbbf24; margin-bottom: 12px; font-size: 0.95em;">💵 Naqad (Cash) Zahira</h4>
+                        <div class="input-group" style="margin-bottom: 10px;">
+                            <label for="cashAmount">Naqad Miqdori (UZS)</label>
+                            <input type="number" id="cashAmount" placeholder="Naqad pulni kiriting" min="0">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label for="cashNote">Izoh (ixtiyoriy)</label>
+                            <textarea id="cashNote" placeholder="Masalan: Qo'lda qolgan pul..." style="height: 60px;"></textarea>
+                        </div>
+                        <div class="btn-group" style="margin-top: 10px; gap: 8px;">
+                            <button class="btn-primary" onclick="addCashReserve()" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); flex: 1; padding: 10px;">➕ Naqad Qayta Kiritish</button>
+                            <button class="btn-secondary" onclick="clearCashForm()" style="flex: 0.4; padding: 10px;">Tozalash</button>
+                        </div>
+                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(251, 191, 36, 0.2);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <span style="color: #cbd5e1; font-size: 0.9em;">Naqad balans:</span>
+                                <span style="font-size: 1.4em; font-weight: 800; color: #fbbf24;" id="cashReserve">0 UZS</span>
+                            </div>
+                            <div style="max-height: 200px; overflow-y: auto; padding-right: 8px;" id="cashReserveList"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Plastik Zahira -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h4 style="color: #60a5fa; margin-bottom: 12px; font-size: 0.95em;">💳 Plastik (Karta) Zahira</h4>
+                        <div class="input-group" style="margin-bottom: 10px;">
+                            <label for="cardAmount">Plastik Karta Miqdori (UZS)</label>
+                            <input type="number" id="cardAmount" placeholder="Kartadagi pulni kiriting" min="0">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label for="cardNote">Izoh (ixtiyoriy)</label>
+                            <textarea id="cardNote" placeholder="Masalan: Humo karta, Visa karta..." style="height: 60px;"></textarea>
+                        </div>
+                        <div class="btn-group" style="margin-top: 10px; gap: 8px;">
+                            <button class="btn-primary" onclick="addCardReserve()" style="background: linear-gradient(135deg, #60a5fa, #3b82f6); flex: 1; padding: 10px;">➕ Plastik Qayta Kiritish</button>
+                            <button class="btn-secondary" onclick="clearCardForm()" style="flex: 0.4; padding: 10px;">Tozalash</button>
+                        </div>
+                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(96, 165, 250, 0.2);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <span style="color: #cbd5e1; font-size: 0.9em;">Plastik balans:</span>
+                                <span style="font-size: 1.4em; font-weight: 800; color: #60a5fa;" id="cardReserve">0 UZS</span>
+                            </div>
+                            <div style="max-height: 200px; overflow-y: auto; padding-right: 8px;" id="cardReserveList"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Umumiy Zahira -->
+                    <div style="background: rgba(16, 185, 129, 0.2); padding: 15px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #34d399; font-weight: 600;">Umumiy Zahira:</span>
+                            <span style="font-size: 1.6em; font-weight: 800; color: #34d399;" id="totalReserve">0 UZS</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 25px;">
+                    <h3 style="margin-bottom: 15px; color: #e2e8f0; font-size: 1.15em;">📊 Ish Joylaridan Oylik Kirim</h3>
+                </div>
+                
+                <div class="input-group">
+                    <label for="incomeSource">Kirim Manbasi</label>
+                    <input type="text" id="incomeSource" placeholder="Kirim manbasini kiriting">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; color: #cbd5e1; font-weight: 600; font-size: 0.95em;">Tez Tanlash:</label>
+                    <div class="quick-buttons">
+                        <button class="quick-btn" onclick="setIncomeSource('Alfraganus Universiteti')">🏫 AFU</button>
+                        <button class="quick-btn" onclick="setIncomeSource('Respublika tez tibbiy yordam')">🚑 Tez Yordam</button>
+                        <button class="quick-btn" onclick="setIncomeSource('City Med')">🏥 City Med</button>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="incomeAmount">Miqdori (UZS)</label>
+                    <input type="number" id="incomeAmount" placeholder="Summa kiriting" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="incomeDate">Sana <span style="color: #a5b4fc;">(bugungi kun tanlangan)</span></label>
+                    <input type="date" id="incomeDate">
+                </div>
+                <div class="input-group">
+                    <label for="incomeNote">Izoh (ixtiyoriy)</label>
+                    <textarea id="incomeNote" placeholder="Qo'shimcha ma'lumot..."></textarea>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="addIncome()">➕ Qo'shish</button>
+                    <button class="btn-secondary" onclick="clearIncomeForm()">Tozalash</button>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    <h3 style="margin-bottom: 15px; color: #e2e8f0; font-size: 1.1em;">Kirimlar ro'yxati</h3>
+                    <div class="transactions-list" id="incomeList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            Hali kirim qo'shilmagan
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chiqim Qo'shish -->
+            <div class="card">
+                <h2>📤 Chiqim Qo'shish</h2>
+                <div class="input-group">
+                    <label for="expenseCategory">Chiqim Turi</label>
+                    <select id="expenseCategory" onchange="toggleCustomExpense()">
+                        <option value="">Turi tanlang...</option>
+                        <option value="🍔 Yevsa">🍔 Yevsa/Oziq-ovqat</option>
+                        <option value="🏠 Ijara">🏠 Yashash joyining ijarasi</option>
+                        <option value="⚡ Kommunal">⚡ Kommunal xizmatlari</option>
+                        <option value="🚗 Transport">🚗 Transport/Benzin</option>
+                        <option value="🏥 Sog'liq">🏥 Sog'liqni saqlash</option>
+                        <option value="💳 Oily">💳 Oily/Pul o'tkazish</option>
+                        <option value="📋 Keskin">📋 Keskin shartnoma</option>
+                        <option value="custom">📝 Boshqa (O'zini yozish)</option>
+                    </select>
+                </div>
+                <div class="input-group" id="customExpenseInput" style="display: none;">
+                    <label for="customExpenseName">Yangi chiqim turi nomi</label>
+                    <input type="text" id="customExpenseName" placeholder="Masalan: Onlayn kurslar, Kitob, Kiyim...">
+                </div>
+                <div class="input-group">
+                    <label for="expenseAmount">Miqdori (UZS)</label>
+                    <input type="number" id="expenseAmount" placeholder="Summa kiriting" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="expenseDate">Sana <span style="color: #a5b4fc;">(bugungi kun tanlangan)</span></label>
+                    <input type="date" id="expenseDate">
+                </div>
+                <div class="input-group">
+                    <label for="expenseNote">Izoh (ixtiyoriy)</label>
+                    <textarea id="expenseNote" placeholder="Qo'shimcha ma'lumot..."></textarea>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="addExpense()">➖ Qo'shish</button>
+                    <button class="btn-secondary" onclick="clearExpenseForm()">Tozalash</button>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    <h3 style="margin-bottom: 15px; color: #e2e8f0; font-size: 1.1em;">Chiqimlar ro'yxati</h3>
+                    <div class="transactions-list" id="expenseList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            Hali chiqim qo'shilmagan
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // Naqad zahira qo'shish
+        function addCashReserve() {
+            const amount = parseFloat(document.getElementById('cashAmount').value);
+            const note = document.getElementById('cashNote').value;
+            
+            if (!amount || amount <= 0) {
+                alert('Iltimos, naqad miqdorini kiriting!');
+                return;
+            }
+
+            const data = loadData();
+            if (!data.cashReserveList) {
+                data.cashReserveList = [];
+            }
+            
+            data.cashReserveList.push({
+                id: Date.now(),
+                amount: amount,
+                note: note,
+                date: new Date().toISOString().split('T')[0]
+            });
+            
+            saveData(data);
+            
+            document.getElementById('cashAmount').value = '';
+            document.getElementById('cashNote').value = '';
+            updateReserveDisplay();
+            updateDisplay();
+        }
+
+        // Plastik zahira qo'shish
+        function addCardReserve() {
+            const amount = parseFloat(document.getElementById('cardAmount').value);
+            const note = document.getElementById('cardNote').value;
+            
+            if (!amount || amount <= 0) {
+                alert('Iltimos, plastik karta miqdorini kiriting!');
+                return;
+            }
+
+            const data = loadData();
+            if (!data.cardReserveList) {
+                data.cardReserveList = [];
+            }
+            
+            data.cardReserveList.push({
+                id: Date.now(),
+                amount: amount,
+                note: note,
+                date: new Date().toISOString().split('T')[0]
+            });
+            
+            saveData(data);
+            
+            document.getElementById('cardAmount').value = '';
+            document.getElementById('cardNote').value = '';
+            updateReserveDisplay();
+            updateDisplay();
+        }
+
+        // Zahira ko'rinishini yangilash
+        function updateReserveDisplay() {
+            const data = loadData();
+            const cashList = data.cashReserveList || [];
+            const cardList = data.cardReserveList || [];
+            
+            const cashReserve = cashList.reduce((sum, item) => sum + item.amount, 0);
+            const cardReserve = cardList.reduce((sum, item) => sum + item.amount, 0);
+            const totalReserve = cashReserve + cardReserve;
+            
+            document.getElementById('cashReserve').textContent = formatNumber(cashReserve) + ' UZS';
+            document.getElementById('cardReserve').textContent = formatNumber(cardReserve) + ' UZS';
+            document.getElementById('totalReserve').textContent = formatNumber(totalReserve) + ' UZS';
+            
+            // Naqad ro'yxatini ko'rsatish
+            const cashListEl = document.getElementById('cashReserveList');
+            cashListEl.innerHTML = '';
+            if (cashList.length === 0) {
+                cashListEl.innerHTML = '<div style="color: #94a3b8; font-size: 0.85em; text-align: center; padding: 8px;">Naqad qo\'shilmagan</div>';
+            } else {
+                cashList.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.style.cssText = 'background: rgba(251, 191, 36, 0.1); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(251, 191, 36, 0.2);';
+                    itemEl.innerHTML = `
+                        <div style="flex: 1;">
+                            <div style="color: #fbbf24; font-weight: 600; font-size: 0.95em;">${formatNumber(item.amount)} UZS</div>
+                            <div style="color: #cbd5e1; font-size: 0.8em;">${item.date}</div>
+                            ${item.note ? `<div style="color: #94a3b8; font-size: 0.8em; margin-top: 2px;">${item.note}</div>` : ''}
+                        </div>
+                        <button onclick="deleteCashReserve(${item.id})" style="background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.5); color: #ef4444; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75em; font-weight: 600; transition: all 0.2s; margin-left: 10px;" onmouseover="this.style.background='rgba(239, 68, 68, 0.6)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.3)'">🗑️ O'chirish</button>
+                    `;
+                    cashListEl.appendChild(itemEl);
+                });
+            }
+            
+            // Plastik ro'yxatini ko'rsatish
+            const cardListEl = document.getElementById('cardReserveList');
+            cardListEl.innerHTML = '';
+            if (cardList.length === 0) {
+                cardListEl.innerHTML = '<div style="color: #94a3b8; font-size: 0.85em; text-align: center; padding: 8px;">Plastik qo\'shilmagan</div>';
+            } else {
+                cardList.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.style.cssText = 'background: rgba(96, 165, 250, 0.1); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(96, 165, 250, 0.2);';
+                    itemEl.innerHTML = `
+                        <div style="flex: 1;">
+                            <div style="color: #60a5fa; font-weight: 600; font-size: 0.95em;">${formatNumber(item.amount)} UZS</div>
+                            <div style="color: #cbd5e1; font-size: 0.8em;">${item.date}</div>
+                            ${item.note ? `<div style="color: #94a3b8; font-size: 0.8em; margin-top: 2px;">${item.note}</div>` : ''}
+                        </div>
+                        <button onclick="deleteCardReserve(${item.id})" style="background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.5); color: #ef4444; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75em; font-weight: 600; transition: all 0.2s; margin-left: 10px;" onmouseover="this.style.background='rgba(239, 68, 68, 0.6)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.3)'">🗑️ O'chirish</button>
+                    `;
+                    cardListEl.appendChild(itemEl);
+                });
+            }
+        }
+
+        // Naqad formasini tozalash
+        function clearCashForm() {
+            document.getElementById('cashAmount').value = '';
+            document.getElementById('cashNote').value = '';
+        }
+
+        // Plastik formasini tozalash
+        function clearCardForm() {
+            document.getElementById('cardAmount').value = '';
+            document.getElementById('cardNote').value = '';
+        }
+
+        // Naqad zahirasi o'chirish
+        function deleteCashReserve(id) {
+            if (confirm('🗑️ Bu naqad kiritmasini o\'chirmoqchisiz?')) {
+                const data = loadData();
+                data.cashReserveList = (data.cashReserveList || []).filter(item => item.id !== id);
+                saveData(data);
+                updateReserveDisplay();
+                updateDisplay();
+            }
+        }
+
+        // Plastik zahirasi o'chirish
+        function deleteCardReserve(id) {
+            if (confirm('🗑️ Bu plastik kiritmasini o\'chirmoqchisiz?')) {
+                const data = loadData();
+                data.cardReserveList = (data.cardReserveList || []).filter(item => item.id !== id);
+                saveData(data);
+                updateReserveDisplay();
+                updateDisplay();
+            }
+        }
+
+        // Ma'lumotlarni Export (Yuklab Olish) - Copy-Paste qilish uchun
+        function exportData() {
+            const data = loadData();
+            const jsonString = JSON.stringify(data, null, 2);
+            
+            // Modal/popup oching
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: #1e293b;
+                padding: 30px;
+                border-radius: 16px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            `;
+            
+            content.innerHTML = `
+                <h2 style="color: white; margin-bottom: 20px; font-size: 1.5em;">📋 JSON Ma'lumot (Copy-Paste qiling)</h2>
+                <p style="color: #cbd5e1; margin-bottom: 15px;">Pastdagi kodni butunlay COPY qilib, Notepad'ga PASTE qiling:</p>
+                <textarea id="exportText" style="
+                    width: 100%;
+                    height: 300px;
+                    padding: 15px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                    color: #34d399;
+                    font-family: monospace;
+                    font-size: 0.9em;
+                    resize: none;
+                    margin-bottom: 15px;
+                " readonly>${jsonString}</textarea>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="copyToClipboard()" style="
+                        background: linear-gradient(135deg, #10b981, #34d399);
+                        color: white;
+                        padding: 12px 24px;
+                        border: none;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: 700;
+                        flex: 1;
+                    ">📋 COPY qil</button>
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()" style="
+                        background: rgba(255, 255, 255, 0.1);
+                        color: white;
+                        padding: 12px 24px;
+                        border: none;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: 700;
+                        flex: 1;
+                    ">X Yopish</button>
+                </div>
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+        
+        // Clipboard'ga copy qilish
+        function copyToClipboard() {
+            const text = document.getElementById('exportText');
+            text.select();
+            document.execCommand('copy');
+            alert('✅ Kopi qilindi! Notepad\'ga PASTE qiling.');
+        }
+
+        // Import qilish tugmasini bosganda - mobil uchun text input ko'rsatish
+        function triggerImport() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: #1e293b;
+                padding: 30px;
+                border-radius: 16px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            `;
+            
+            content.innerHTML = `
+                <h2 style="color: white; margin-bottom: 20px; font-size: 1.3em;">📤 Ma'lumotlarni Yuklash</h2>
+                
+                <p style="color: #cbd5e1; margin-bottom: 15px; font-weight: 600;">USUL 1: Text Paste (Telefon uchun)</p>
+                <textarea id="importText" style="
+                    width: 100%;
+                    height: 250px;
+                    padding: 15px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                    color: #34d399;
+                    font-family: monospace;
+                    font-size: 0.85em;
+                    resize: none;
+                    margin-bottom: 15px;
+                    color: white;
+                " placeholder="JSON kodni shu yerga PASTE qiling..."></textarea>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button onclick="importFromText()" style="
+                        background: linear-gradient(135deg, #667eea, #764ba2);
+                        color: white;
+                        padding: 12px 20px;
+                        border: none;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: 700;
+                        flex: 1;
+                    ">✅ Import Qil</button>
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()" style="
+                        background: rgba(255, 255, 255, 0.1);
+                        color: white;
+                        padding: 12px 20px;
+                        border: none;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: 700;
+                        flex: 0.5;
+                    ">X</button>
+                </div>
+                
+                <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 20px 0;">
+                
+                <p style="color: #cbd5e1; margin-bottom: 15px; font-weight: 600;">USUL 2: Fayldan (Kompyuter uchun)</p>
+                <input type="file" id="importFile" accept=".json" style="
+                    width: 100%;
+                    padding: 10px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                    color: white;
+                " onchange="importData()">
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+        
+        // Text'dan import qilish
+        function importFromText() {
+            const textArea = document.getElementById('importText');
+            const jsonText = textArea.value.trim();
+            
+            if (!jsonText) {
+                alert('❌ JSON kodni paste qiling!');
+                return;
+            }
+            
+            try {
+                const data = JSON.parse(jsonText);
+                
+                if (!data || typeof data !== 'object') {
+                    throw new Error('Noto\'g\'ri format');
+                }
+                
+                localStorage.setItem('budgetData', JSON.stringify(data));
+                alert('✅ Ma\'lumotlar muvaffaqiyatli yuklandi!');
+                
+                // Modalni yopish va page refresh
+                document.querySelector('div[style*="position: fixed"]').remove();
+                location.reload();
+            } catch (error) {
+                alert('❌ Xato!\n\n' + error.message + '\n\nJSON formatini tekshiring.');
+            }
+        }
+
+        // Ma'lumotlarni Import (Yuklash)
+        function importData() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Tekshirish - ma'lumot to'g'ri formatda ekanini
+                    if (!data || typeof data !== 'object') {
+                        throw new Error('Noto\'g\'ri format');
+                    }
+                    
+                    // Ma'lumotlarni localStorage'ga saqlash
+                    localStorage.setItem('budgetData', JSON.stringify(data));
+                    
+                    alert('✅ Ma\'lumotlar muvaffaqiyatli yuklandi!');
+                    
+                    // Sahifani yangilash
+                    location.reload();
+                } catch (error) {
+                    alert('❌ Xato: Faylni o\'qiy olmasdim.\n\nSababab: ' + error.message);
+                }
+            };
+            
+            reader.readAsText(file);
+            
+            // Faylni boshlang'ich holatga qaytarish
+            fileInput.value = '';
+        }
+
+        // Chop etish funksiyasi
+        function printReport() {
+            const data = loadData();
+            const selectedMonth = document.getElementById('monthSelector').value;
+            
+            // Chop etish oynasini oching
+            window.print();
+        }
+
+        // Barchani o'chirish - 0 dan qayta boshlash
+        function resetAllData() {
+            if (confirm('⚠️ TAVSIF OLINCHILA!\n\nBarchasi O\'CHIRILADI!\n\n✅ Qayta qaytara olmaysiz!\n\n\nJavasob? (BARCHASI O\'CHIRILADI)')) {
+                if (confirm('🔴 OXIRGI TASDIQ!\n\nBarchasi BUTUNLAY O\'CHIRILADI!\n\nDavom etmoqchisiz?')) {
+                    // localStorage'dan o'chirib yuborish
+                    localStorage.removeItem('budgetData');
+                    
+                    // Sahifani yangilash
+                    alert('✅ Barchasi o\'chirildi! Sahifa yangilaniyor...');
+                    location.reload();
+                }
+            }
+        }
+
+        // Boshqa chiqim turini ko'rsatish/yashirish
+        function toggleCustomExpense() {
+            const category = document.getElementById('expenseCategory').value;
+            const customInput = document.getElementById('customExpenseInput');
+            if (category === 'custom') {
+                customInput.style.display = 'block';
+                document.getElementById('customExpenseName').focus();
+            } else {
+                customInput.style.display = 'none';
+                document.getElementById('customExpenseName').value = '';
+            }
+        }
+
+        // Tez kirim manbasi o'rnatish
+        function setIncomeSource(workplace) {
+            document.getElementById('incomeSource').value = workplace;
+            document.getElementById('incomeSource').focus();
+            // Kusor miqdor inputiga o'tish
+            setTimeout(() => {
+                document.getElementById('incomeAmount').focus();
+            }, 100);
+        }
+
+        // Bugungi sanani standart format bilan o'rnatish
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.substring(0, 7);
+            
+            document.getElementById('incomeDate').value = today;
+            document.getElementById('expenseDate').value = today;
+            document.getElementById('monthSelector').value = currentMonth;
+        }
+
+        // Ma'lumotlarni localStorage'dan yuklash
+        function loadData() {
+            const data = localStorage.getItem('budgetData');
+            if (data) {
+                return JSON.parse(data);
+            }
+            
+            // BO'SH MA'LUMOT - 0 DAN BOSHLASH
+            return {
+                incomes: [],
+                expenses: [],
+                cashReserveList: [],
+                cardReserveList: [],
+                customCategories: []
+            };
+        }
+
+        // Ma'lumotlarni localStorage'ga saqlash
+        function saveData(data) {
+            localStorage.setItem('budgetData', JSON.stringify(data));
+        }
+
+        // Kirim qo'shish
+        function addIncome() {
+            const source = document.getElementById('incomeSource').value;
+            const amount = parseFloat(document.getElementById('incomeAmount').value);
+            const date = document.getElementById('incomeDate').value;
+            const note = document.getElementById('incomeNote').value;
+
+            if (!source || !amount || !date) {
+                alert('Iltimos, barcha majburiy maydonlarni to\'ldiring!');
+                return;
+            }
+
+            const data = loadData();
+            data.incomes.push({
+                id: Date.now(),
+                source,
+                amount,
+                date,
+                note
+            });
+            saveData(data);
+            clearIncomeForm();
+            updateDisplay();
+        }
+
+        // Chiqim qo'shish
+        function addExpense() {
+            let category = document.getElementById('expenseCategory').value;
+            const customName = document.getElementById('customExpenseName').value;
+            
+            // Agar "custom" tanlansa, inputdan qiymat olish
+            if (category === 'custom') {
+                if (!customName.trim()) {
+                    alert('Iltimos, chiqim turi nomini kiriting!');
+                    return;
+                }
+                category = '📝 ' + customName;
+            }
+            
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const date = document.getElementById('expenseDate').value;
+            const note = document.getElementById('expenseNote').value;
+
+            if (!category || !amount || !date) {
+                alert('Iltimos, barcha majburiy maydonlarni to\'ldiring!');
+                return;
+            }
+
+            const data = loadData();
+            data.expenses.push({
+                id: Date.now(),
+                category,
+                amount,
+                date,
+                note
+            });
+            
+            // Agar custom kategoriya bo'lsa, uning nomini saqlash
+            if (customName.trim()) {
+                if (!data.customCategories) {
+                    data.customCategories = [];
+                }
+                if (!data.customCategories.includes(customName)) {
+                    data.customCategories.push(customName);
+                }
+            }
+            
+            saveData(data);
+            clearExpenseForm();
+            updateDisplay();
+            updateExpenseCategories();
+        }
+
+        // Kirim yo'q qilish
+        function deleteIncome(id) {
+            const data = loadData();
+            data.incomes = data.incomes.filter(item => item.id !== id);
+            saveData(data);
+            updateDisplay();
+        }
+
+        // Chiqim yo'q qilish
+        function deleteExpense(id) {
+            const data = loadData();
+            data.expenses = data.expenses.filter(item => item.id !== id);
+            saveData(data);
+            updateDisplay();
+        }
+
+        // Oraliq to'plam-tozhida chiqarish
+        function updateDisplay() {
+            const data = loadData();
+            const selectedMonth = document.getElementById('monthSelector').value;
+
+            // Tanlangan oyni bo'yicha filterlash
+            let filteredIncomes = data.incomes.filter(item => item.date.startsWith(selectedMonth));
+            let filteredExpenses = data.expenses.filter(item => item.date.startsWith(selectedMonth));
+            
+            // Sanasi bo'yicha tartiblash (eng eski birinchi)
+            filteredIncomes.sort((a, b) => new Date(a.date) - new Date(b.date));
+            filteredExpenses.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Kirim ro'yxatini chiqarish
+            const incomeList = document.getElementById('incomeList');
+            if (filteredIncomes.length === 0) {
+                incomeList.innerHTML = '<div class="empty-state">Ushbu oy uchun kirim qo\'shilmagan</div>';
+            } else {
+                incomeList.innerHTML = filteredIncomes.map(income => `
+                    <div class="transaction-item income">
+                        <div class="transaction-info">
+                            <div class="transaction-name">${income.source}</div>
+                            <div class="transaction-desc">${income.date}${income.note ? ' • ' + income.note : ''}</div>
+                        </div>
+                        <div class="transaction-amount income">+${formatNumber(income.amount)}</div>
+                        <button class="btn-delete" onclick="deleteIncome(${income.id})">✕</button>
+                    </div>
+                `).join('');
+            }
+
+            // Chiqim ro'yxatini chiqarish
+            const expenseList = document.getElementById('expenseList');
+            if (filteredExpenses.length === 0) {
+                expenseList.innerHTML = '<div class="empty-state">Ushbu oy uchun chiqim qo\'shilmagan</div>';
+            } else {
+                expenseList.innerHTML = filteredExpenses.map(expense => `
+                    <div class="transaction-item expense">
+                        <div class="transaction-info">
+                            <div class="transaction-name">${expense.category}</div>
+                            <div class="transaction-desc">${expense.date}${expense.note ? ' • ' + expense.note : ''}</div>
+                        </div>
+                        <div class="transaction-amount expense">-${formatNumber(expense.amount)}</div>
+                        <button class="btn-delete" onclick="deleteExpense(${expense.id})">✕</button>
+                    </div>
+                `).join('');
+            }
+
+            // Jami summa hisob-kitob
+            // Kirimlar - faqat ish joylardan
+            const totalJobIncome = filteredIncomes.reduce((sum, item) => sum + item.amount, 0);
+            
+            // Zahira
+            const cashList = data.cashReserveList || [];
+            const cardList = data.cardReserveList || [];
+            const totalReserve = cashList.reduce((sum, item) => sum + item.amount, 0) + cardList.reduce((sum, item) => sum + item.amount, 0);
+            
+            // Chiqim
+            const totalExpense = filteredExpenses.reduce((sum, item) => sum + item.amount, 0);
+            
+            // Saldo = Zahira + Kirimlar - Chiqimlar
+            const balance = totalReserve + totalJobIncome - totalExpense;
+
+            document.getElementById('totalIncome').textContent = formatNumber(totalJobIncome) + ' UZS';
+            document.getElementById('totalExpense').textContent = formatNumber(totalExpense) + ' UZS';
+            document.getElementById('totalBalance').textContent = formatNumber(balance) + ' UZS';
+        }
+
+        // Raqamlarni formatlashtirish (har 3 ta raqam orasida probal)
+        function formatNumber(num) {
+            return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+
+        // Shakl tozalash
+        function clearIncomeForm() {
+            document.getElementById('incomeSource').value = '';
+            document.getElementById('incomeAmount').value = '';
+            document.getElementById('incomeNote').value = '';
+            setDefaultDates();
+        }
+
+        // Chiqim kategoriyalarini yangilash (custom kategoriyalar qo'shish)
+        function updateExpenseCategories() {
+            const data = loadData();
+            const categorySelect = document.getElementById('expenseCategory');
+            
+            // Barcha custom option'larni o'chirish (amma "custom" va standartlarni qoldirish)
+            const customOptions = categorySelect.querySelectorAll('option[data-custom="true"]');
+            customOptions.forEach(option => option.remove());
+            
+            const separators = categorySelect.querySelectorAll('option[disabled][data-separator="true"]');
+            separators.forEach(sep => sep.remove());
+            
+            // Saqlangan custom kategoriyalarni qo'shish
+            if (data.customCategories && data.customCategories.length > 0) {
+                const separator = document.createElement('option');
+                separator.disabled = true;
+                separator.setAttribute('data-separator', 'true');
+                separator.textContent = '─────────────────';
+                categorySelect.insertBefore(separator, categorySelect.querySelector('option[value="custom"]'));
+                
+                data.customCategories.forEach(customCat => {
+                    const option = document.createElement('option');
+                    option.value = '📝 ' + customCat;
+                    option.textContent = '📝 ' + customCat;
+                    option.setAttribute('data-custom', 'true');
+                    categorySelect.insertBefore(option, categorySelect.querySelector('option[value="custom"]'));
+                });
+            }
+        }
+
+        function clearExpenseForm() {
+            document.getElementById('expenseCategory').value = '';
+            document.getElementById('customExpenseName').value = '';
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseNote').value = '';
+            document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+            toggleCustomExpense();
+        }
+
+        // Oyni o'zgartirish
+        document.getElementById('monthSelector').addEventListener('change', () => {
+            updateDisplay();
+            updateReserveDisplay();
+        });
+
+        // Sahifani yuklashda boshlash
+        window.addEventListener('load', function() {
+            checkAuthentication();
+            setDefaultDates();
+            updateDisplay();
+            updateExpenseCategories();
+            updateReserveDisplay();
+        });
+
+        // ===== AUTHENTICATION (LOCAL) =====
+        
+        function checkAuthentication() {
+            const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            if (user) {
+                updateUserProfile(user);
+                showAppUI();
+            } else {
+                showAuthUI();
+            }
+        }
+        
+        function showAuthUI() {
+            document.getElementById('authButtonsCard').style.display = 'block';
+            document.getElementById('settingsCard').style.display = 'none';
+            document.getElementById('infoCard').style.display = 'none';
+            document.getElementById('logoutCard').style.display = 'none';
+            document.getElementById('userProfileCard').style.opacity = '0.5';
+            document.getElementById('userName').textContent = 'Kirish Kerak';
+            document.getElementById('userEmail').textContent = 'Akkaunt yaratish uchun';
+        }
+        
+        function showAppUI() {
+            document.getElementById('authButtonsCard').style.display = 'none';
+            document.getElementById('settingsCard').style.display = 'block';
+            document.getElementById('infoCard').style.display = 'block';
+            document.getElementById('logoutCard').style.display = 'block';
+            document.getElementById('userProfileCard').style.opacity = '1';
+        }
+        
+        function openAccountModal() {
+            document.getElementById('accountModalTitle').textContent = '📝 Yangi Akkaunt Yaratish';
+            document.getElementById('accountModalCancel').style.display = 'none';
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('accountModal').classList.add('active');
+        }
+        
+        function openLoginModal() {
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginModal').classList.add('active');
+        }
+        
+        function closeAccountModal() {
+            document.getElementById('accountModal').classList.remove('active');
+        }
+        
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+        
+        function toggleRegPasswordVisibility() {
+            const field = document.getElementById('regPassword');
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
+        
+        function toggleLoginPasswordVisibility() {
+            const field = document.getElementById('loginPassword');
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
+        
+        function createAccount() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            
+            if (!username || !password) {
+                alert('⚠️ Username va parolni kiriting!');
+                return;
+            }
+            
+            if (username.length < 3) {
+                alert('⚠️ Username kamida 3 belgidan iborat bo\'lishi kerak!');
+                return;
+            }
+            
+            if (password.length < 4) {
+                alert('⚠️ Parol kamida 4 belgidan iborat bo\'lishi kerak!');
+                return;
+            }
+            
+            let users = JSON.parse(localStorage.getItem('users') || '{}');
+            
+            if (users[username]) {
+                alert('⚠️ Bu username allaqachon band!');
+                return;
+            }
+            
+            users[username] = {
+                password: password,
+                email: username + '@budget.uz',
+                createdAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('currentUser', JSON.stringify({
+                username: username,
+                email: username + '@budget.uz'
+            }));
+            
+            closeAccountModal();
+            checkAuthentication();
+            alert('✅ Akkaunt muvaffaqiyatli yaratildi! Xush kelibsiz!');
+        }
+        
+        function loginAccount() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                alert('⚠️ Username va parolni kiriting!');
+                return;
+            }
+            
+            let users = JSON.parse(localStorage.getItem('users') || '{}');
+            
+            if (!users[username] || users[username].password !== password) {
+                alert('❌ Username yoki parol noto\'g\'ri!');
+                return;
+            }
+            
+            localStorage.setItem('currentUser', JSON.stringify({
+                username: username,
+                email: users[username].email || username + '@budget.uz'
+            }));
+            
+            closeLoginModal();
+            checkAuthentication();
+            alert('✅ Muvaffaqiyatli kirildi!');
+        }
+        
+        function logout() {
+            if (confirm('🚪 Chiqishni tasdiqlaysizmi?')) {
+                localStorage.removeItem('currentUser');
+                checkAuthentication();
+            }
+        }
+        
+        function updateUserProfile(user) {
+            document.getElementById('userName').textContent = user.username;
+            document.getElementById('userEmail').textContent = user.email;
+            const initial = user.username.charAt(0).toUpperCase();
+            document.getElementById('userAvatar').textContent = initial;
+        }
+        
+        // ===== SETTINGS =====
+        
+        function openSettingsModal() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            document.getElementById('settingsUsername').value = user.username;
+            document.getElementById('settingsEmail').value = user.email;
+            document.getElementById('settingsModal').classList.add('active');
+        }
+        
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+        
+        function saveSettings() {
+            const newUsername = document.getElementById('settingsUsername').value.trim();
+            const newEmail = document.getElementById('settingsEmail').value.trim();
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            let users = JSON.parse(localStorage.getItem('users') || '{}');
+            
+            if (!newUsername || !newEmail) {
+                alert('⚠️ Barcha maydonlarni to\'ldiring!');
+                return;
+            }
+            
+            if (newUsername !== user.username && users[newUsername]) {
+                alert('⚠️ Bu username allaqachon band!');
+                return;
+            }
+            
+            if (newUsername !== user.username) {
+                users[newUsername] = users[user.username];
+                delete users[user.username];
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            const updatedUser = {
+                username: newUsername,
+                email: newEmail
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            updateUserProfile(updatedUser);
+            closeSettingsModal();
+            alert('✅ Profil saqlandi!');
+        }
+        
+        function openPasswordModal() {
+            document.getElementById('passwordModal').classList.add('active');
+        }
+        
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('active');
+            document.getElementById('oldPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+        
+        function changePassword() {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                alert('⚠️ Barcha maydonlarni to\'ldiring!');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                alert('⚠️ Yangi parol kamida 4 belgidan iborat bo\'lishi kerak!');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('⚠️ Parollar mos kelmadi!');
+                return;
+            }
+            
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            let users = JSON.parse(localStorage.getItem('users') || '{}');
+            
+            if (users[user.username].password !== btoa(oldPassword)) {
+                alert('❌ Eski parol noto\'g\'ri!');
+                return;
+            }
+            
+            users[user.username].password = btoa(newPassword);
+            localStorage.setItem('users', JSON.stringify(users));
+            closePasswordModal();
+            alert('✅ Parol o\'zgartirildi!');
+        }
+        
+        function showInfo() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const data = JSON.parse(localStorage.getItem('budgetData') || '{}');
+            
+            const incomeCount = (data.incomes || []).length;
+            const expenseCount = (data.expenses || []).length;
+            const reserveTotal = (data.cashReserveList || []).reduce((s, i) => s + i.amount, 0) + 
+                                (data.cardReserveList || []).reduce((s, i) => s + i.amount, 0);
+            
+            alert(`📊 STATISTIKA
+            
+👤 Foydalanuvchi: ${user.username}
+📥 Kirimlar: ${incomeCount} ta
+📤 Chiqimlar: ${expenseCount} ta
+💰 Jami Zahira: ${formatNumber(reserveTotal)} UZS`);
+        }
+        
+        function showHelp() {
+            alert(`❓ YO'RIQNOMA
+
+📝 KIRIM QO'SHISH:
+1. "Manba" tanlang
+2. Miqdori kiriting
+3. Sanani tanlang
+4. "Qo'shish" bosing
+
+📤 CHIQIM QO'SHISH:
+1. "Kategoriya" tanlang
+2. Miqdori kiriting
+3. Sanani tanlang
+4. "Qo'shish" bosing
+
+💰 ZAHIRA:
+1. Naqad yoki plastik tanlang
+2. Miqdori kiriting
+3. "Qo'shish" bosing
+
+📊 EXPORT/IMPORT:
+- "Export" → JSON backup
+- "Import" → Eski ma'lumotlar qaytarish
+
+🖨️ CHOP ETISH:
+- "Print" → Raport chiqarish
+
+⚙️ SOZLAMALAR:
+- Profil tahriri
+- Parol o'zgartiirsh
+- Chiqish`);
+        }
+    </script>
+</body>
+</html>
