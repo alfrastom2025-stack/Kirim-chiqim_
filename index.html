@@ -1913,7 +1913,7 @@
         
         async function loadUsersFromGitHub() {
             try {
-                const response = await fetch('https://raw.githubusercontent.com/USERNAME/kirim-chiqim-app/main/users.json');
+                const response = await fetch('https://raw.githubusercontent.com/alfrustom2025-stack/Kirim-chiqim_/main/users.json');
                 if (response.ok) {
                     const data = await response.json();
                     localStorage.setItem('users', JSON.stringify(data));
